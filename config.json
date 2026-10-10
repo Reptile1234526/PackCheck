@@ -1,0 +1,7 @@
+{
+  "port": "/dev/ttyUSB0",
+  "baudrate": 57600,
+  "power_dbm": 20,
+  "scan_duration": 2.0,
+  "items": {}
+}

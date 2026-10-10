@@ -1,0 +1,10 @@
+{
+    "autodeskProduct": "Fusion",
+    "type": "script",
+    "author": "",
+    "description": {
+        "": "Generates a two-piece stacking case for the RFID Backpack Checker (Pi 3B + J4212U + battery)"
+    },
+    "supportedOS": "windows|mac",
+    "editEnabled": true
+}
