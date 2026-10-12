@@ -9,7 +9,7 @@ RFID backpack checker — scans the UHF RFID tags on books/items in your backpac
 ## Tech
 - **Python** — reader communication, tag checking, and a Flask web server
 - **HTML / CSS / JavaScript** — the web interface (embedded in `app.py`)
-- **CadQuery & Fusion 360 (Python)** — scripts used to design the 3D-printed case
+- **Fusion 360** — Used to design the 3D-printed case
 
 ## Files
 - `app.py` — Flask web app (serves the UI and API)
