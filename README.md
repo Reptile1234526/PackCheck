@@ -1,6 +1,6 @@
 # PackCheck
 
-RFID backpack checker — scans the UHF RFID tags on books/items in your backpack and tells you what's missing before you leave home.
+RFID backpack checker: scans the UHF RFID tags on books/items in your backpack and tells you what's missing before you leave home.
 
 ## Hardware
 - Raspberry Pi 3 Model B
