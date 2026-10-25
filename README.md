@@ -19,6 +19,9 @@ RFID backpack checker: scans the UHF RFID tags on books/items in your backpack a
 - `case/` — 3D-printable enclosure (STEP / 3MF files) and the scripts that generate it
 
 ## Setup
+For the full walkthrough (flashing the Pi, connecting the J4210u, registering items, running on boot, troubleshooting), see **[SETUP.md](SETUP.md)**.
+
+Quick start:
 ```bash
 pip install -r requirements.txt
 python app.py
