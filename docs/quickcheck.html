@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#050a08">
+<title>PackCheck Quick Check Demo</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+  :root {
+    --green: #00ff88; --green-dim: #00ff8833; --green-mid: #00ff8866;
+    --red: #ff3366; --red-dim: #ff336633;
+    --bg: #050a08; --surface: #0a1410; --border: #0f2a1f;
+    --text: #c0e8d0; --text-dim: #4a7a60;
+    --mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --sans: 'Space Grotesk', -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans); background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px;
+    padding-top: max(24px, env(safe-area-inset-top));
+  }
+  body::after {
+    content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+      rgba(0,255,136,0.015) 2px, rgba(0,255,136,0.015) 4px);
+    pointer-events: none; z-index: 1000;
+  }
+  .logo {
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 24px;
+  }
+
+  /* Scanning state */
+  .scan-ring {
+    width: 160px; height: 160px; position: relative; margin-bottom: 24px;
+  }
+  .ring {
+    position: absolute; border-radius: 50%;
+    border: 2px solid var(--green-dim);
+    animation: ring-pulse 2s ease-out infinite;
+  }
+  .ring:nth-child(1) { width: 160px; height: 160px; top: 0; left: 0; }
+  .ring:nth-child(2) { width: 120px; height: 120px; top: 20px; left: 20px; animation-delay: 0.3s; }
+  .ring:nth-child(3) { width: 80px; height: 80px; top: 40px; left: 40px; animation-delay: 0.6s; }
+  .ring-center {
+    width: 40px; height: 40px; position: absolute; top: 60px; left: 60px;
+    border-radius: 50%; background: var(--green); opacity: 0.8;
+    box-shadow: 0 0 30px var(--green), 0 0 60px var(--green-dim);
+    animation: center-pulse 1s ease-in-out infinite;
+  }
+  @keyframes ring-pulse {
+    0% { transform: scale(0.85); opacity: 0.8; border-color: var(--green-mid); }
+    100% { transform: scale(1.15); opacity: 0; }
+  }
+  @keyframes center-pulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.9); }
+  }
+  .scan-text {
+    font-family: var(--mono); font-size: 12px; letter-spacing: 2px;
+    color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
+  }
+  #scanPhase { display: none; text-align: center; }
+  #resultPhase { display: none; text-align: center; width: 100%; max-width: 380px; }
+
+  /* Result */
+  .result-count {
+    font-family: var(--mono); font-size: 72px; font-weight: 700;
+    line-height: 1; margin-bottom: 8px;
+  }
+  .result-count.good { color: var(--green); text-shadow: 0 0 40px var(--green-dim); }
+  .result-count.bad { color: var(--red); text-shadow: 0 0 40px var(--red-dim); }
+  .result-msg {
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    letter-spacing: 1px; margin-bottom: 24px;
+  }
+  .result-msg.good { color: var(--green); }
+  .result-msg.bad { color: var(--red); }
+  .result-profile {
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px;
+  }
+
+  .result-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px;
+    position: relative; overflow: hidden;
+  }
+  .result-item.found { border-color: rgba(0,255,136,0.2); }
+  .result-item.found::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--green);
+  }
+  .result-item.missing { border-color: rgba(255,51,102,0.2); }
+  .result-item.missing::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+    width: 3px; background: var(--red);
+  }
+  .result-item-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 14px; font-weight: 700; flex-shrink: 0;
+  }
+  .result-item.found .result-item-icon { background: rgba(0,255,136,0.1); color: var(--green); }
+  .result-item.missing .result-item-icon { background: rgba(255,51,102,0.1); color: var(--red); }
+  .result-item-name {
+    font-family: var(--sans); font-weight: 600; font-size: 15px; color: var(--text);
+  }
+  .rssi-bar { display: flex; gap: 2px; align-items: flex-end; height: 12px; margin-left: auto; }
+  .rssi-bar .bar { width: 3px; border-radius: 1px; background: var(--border); }
+  .rssi-bar .bar.active { background: var(--green); }
+  .rssi-bar .bar.weak { background: #ffcc00; }
+  .rssi-bar .bar:nth-child(1) { height: 4px; }
+  .rssi-bar .bar:nth-child(2) { height: 6px; }
+  .rssi-bar .bar:nth-child(3) { height: 8px; }
+  .rssi-bar .bar:nth-child(4) { height: 10px; }
+  .rssi-bar .bar:nth-child(5) { height: 12px; }
+
+  .btn-rescan {
+    margin-top: 16px; padding: 14px 24px; width: 100%;
+    border: 1px solid var(--green-mid); border-radius: 10px;
+    background: linear-gradient(135deg, rgba(0,255,136,0.12), rgba(0,255,136,0.05));
+    color: var(--green); font-family: var(--mono); font-size: 12px;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .btn-rescan:active { transform: scale(0.97); }
+  .time-stamp {
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+    margin-top: 12px;
+  }
+</style>
+<link rel="stylesheet" href="demo/ui.css">
+<script src="demo/backend.js"></script>
+</head>
+<body data-demo-page="quickcheck">
+<div class="logo">rfid // packcheck</div>
+
+<div id="scanPhase" style="display:flex;flex-direction:column;align-items:center">
+  <div class="scan-ring">
+    <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+    <div class="ring-center"></div>
+  </div>
+  <div class="scan-text">Scanning bag...</div>
+</div>
+
+<div id="resultPhase">
+  <div class="result-count" id="rCount"></div>
+  <div class="result-msg" id="rMsg"></div>
+  <div class="result-profile" id="rProfile"></div>
+  <div id="rItems"></div>
+  <button class="btn-rescan" onclick="runScan()">[ SCAN AGAIN ]</button>
+  <div class="time-stamp" id="rTime"></div>
+</div>
+
+<script>
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+function initAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+function playSuccess() {
+  initAudio(); const now = audioCtx.currentTime;
+  [440,660].forEach((f,i) => {
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(0.15,now+i*0.12);
+    g.gain.exponentialRampToValueAtTime(0.001,now+i*0.12+0.15);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(now+i*0.12);o.stop(now+i*0.12+0.15);
+  });
+}
+function playAlert() {
+  initAudio(); const now = audioCtx.currentTime;
+  [880,660,440].forEach((f,i) => {
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type='square';o.frequency.value=f;
+    g.gain.setValueAtTime(0.12,now+i*0.18);
+    g.gain.exponentialRampToValueAtTime(0.001,now+i*0.18+0.2);
+    o.connect(g).connect(audioCtx.destination);
+    o.start(now+i*0.18);o.stop(now+i*0.18+0.2);
+  });
+}
+
+function rssiBar(rssi) {
+  if (rssi === null) return '';
+  const strength = Math.max(0, Math.min(5, Math.round((rssi + 80) / 12)));
+  let bars = '';
+  for (let i = 0; i < 5; i++) {
+    const active = i < strength;
+    bars += `<div class="bar ${active ? (strength<=2?'weak':'active') : ''}"></div>`;
+  }
+  return `<div class="rssi-bar">${bars}</div>`;
+}
+
+async function runScan() {
+  initAudio();
+  document.getElementById('scanPhase').style.display = 'flex';
+  document.getElementById('resultPhase').style.display = 'none';
+  try {
+    const res = await fetch('/api/check');
+    const data = await res.json();
+    document.getElementById('scanPhase').style.display = 'none';
+    document.getElementById('resultPhase').style.display = 'block';
+
+    const rc = document.getElementById('rCount');
+    const rm = document.getElementById('rMsg');
+    rc.textContent = data.found + '/' + data.total;
+
+    if (data.total === 0) {
+      rc.className = 'result-count'; rm.className = 'result-msg';
+      rm.textContent = 'No items in profile';
+    } else if (data.found === data.total) {
+      rc.className = 'result-count good'; rm.className = 'result-msg good';
+      rm.textContent = 'ALL CLEAR';
+      playSuccess();
+    } else {
+      rc.className = 'result-count bad'; rm.className = 'result-msg bad';
+      const missing = data.items.filter(i => !i.found).map(i => i.name);
+      rm.textContent = 'MISSING: ' + missing.join(', ');
+      playAlert();
+    }
+
+    document.getElementById('rProfile').textContent = data.profile;
+    document.getElementById('rTime').textContent = new Date().toLocaleTimeString('en-US', {hour12:false});
+
+    // Sort: missing first
+    data.items.sort((a,b) => a.found - b.found);
+    document.getElementById('rItems').innerHTML = data.items.map(item => {
+      const cls = item.found ? 'found' : 'missing';
+      const icon = item.found ? '&#x2713;' : '!';
+      return `
+      <div class="result-item ${cls}">
+        <div class="result-item-icon">${icon}</div>
+        <div class="result-item-name">${item.name}</div>
+        ${item.rssi !== null ? rssiBar(item.rssi) : ''}
+      </div>`;
+    }).join('');
+
+  } catch(e) {
+    document.getElementById('scanPhase').style.display = 'none';
+    document.getElementById('resultPhase').style.display = 'block';
+    document.getElementById('rCount').textContent = 'ERR';
+    document.getElementById('rCount').className = 'result-count bad';
+    document.getElementById('rMsg').textContent = 'Connection failed';
+    document.getElementById('rMsg').className = 'result-msg bad';
+    document.getElementById('rItems').innerHTML = '';
+  }
+}
+
+runScan();
+</script>
+<script src="demo/ui.js"></script>
+</body>
+</html>

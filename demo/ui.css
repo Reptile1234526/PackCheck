@@ -1,0 +1,77 @@
+/* PackCheck demo controls. Uses the app's own theme variables so light/dark both work. */
+body[data-demo-page="app"] { max-width: 520px; margin: 0 auto; }
+body[data-demo-page="quickcheck"] { justify-content: flex-start; }
+
+.demo-banner {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 8px 12px; margin: 0 0 16px; padding: 10px 12px;
+  border: 1px dashed var(--yellow, #ffcc00); border-radius: 10px;
+  background: var(--surface); color: var(--text);
+  font-family: var(--sans); font-size: 12px; line-height: 1.4;
+  width: 100%;
+}
+body[data-demo-page="quickcheck"] .demo-banner { max-width: 380px; margin-bottom: 32px; }
+.demo-banner-text { flex: 1 1 220px; }
+.demo-tag {
+  display: inline-block; margin-right: 6px; padding: 1px 6px; border-radius: 4px;
+  background: var(--yellow, #ffcc00); color: #050a08;
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px;
+}
+.demo-banner-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.demo-btn {
+  padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+  background: transparent; color: var(--text); cursor: pointer; text-decoration: none;
+  font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+}
+.demo-btn:hover { border-color: var(--green); }
+.demo-btn-main { border-color: var(--green); color: var(--green); }
+
+.demo-sheet-overlay {
+  position: fixed; inset: 0; z-index: 1002; display: none;
+  align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, 0.6);
+}
+.demo-sheet-overlay.active { display: flex; }
+.demo-sheet {
+  width: 100%; max-width: 520px; max-height: 85vh; overflow-y: auto;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom));
+  border: 1px solid var(--border); border-bottom: none; border-radius: 16px 16px 0 0;
+  background: var(--surface); color: var(--text); font-family: var(--sans);
+}
+.demo-sheet-head { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+.demo-sheet-title { font-size: 17px; font-weight: 700; }
+.demo-sheet-sub { margin-top: 4px; color: var(--text-dim); font-size: 12px; line-height: 1.45; }
+.demo-close {
+  margin-left: auto; background: none; border: none; color: var(--text-dim);
+  font-size: 26px; line-height: 1; cursor: pointer;
+}
+.demo-bag-row {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin-bottom: 6px;
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+}
+.demo-bag-row.out { opacity: 0.6; }
+.demo-bag-row input { position: absolute; opacity: 0; pointer-events: none; }
+.demo-switch {
+  flex: none; width: 36px; height: 20px; border-radius: 10px; position: relative;
+  background: var(--border); transition: background 0.2s;
+}
+.demo-switch::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--text-dim); transition: transform 0.2s, background 0.2s;
+}
+.demo-bag-row input:checked + .demo-switch { background: var(--green-mid); }
+.demo-bag-row input:checked + .demo-switch::after { transform: translateX(16px); background: var(--green); }
+.demo-bag-row input:focus-visible + .demo-switch { outline: 2px solid var(--green); outline-offset: 2px; }
+.demo-bag-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.demo-bag-name { font-size: 14px; font-weight: 600; }
+.demo-bag-epc {
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.demo-bag-state { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+.demo-bag-row.in .demo-bag-state { color: var(--green); }
+.demo-bag-row.out .demo-bag-state { color: var(--red); }
+.demo-done {
+  width: 100%; margin-top: 10px; padding: 14px; border-radius: 10px; border: none;
+  background: var(--green); color: #050a08; cursor: pointer;
+  font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 2px;
+}
