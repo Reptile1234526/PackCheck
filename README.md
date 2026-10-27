@@ -2,6 +2,8 @@
 
 RFID backpack checker: scans the UHF RFID tags on books/items in your backpack and tells you what's missing before you leave home.
 
+**[Try the live demo](https://reptile1234526.github.io/PackCheck/)** — the real web interface running in your browser with a simulated reader and sample data. No Raspberry Pi or RFID hardware needed. Open the **Backpack** button to take items out of the virtual bag, then press **SCAN BAG**.
+
 ## Hardware
 - Raspberry Pi 3 Model B
 - JENCE J4210u UHF RFID reader (USB serial)
@@ -16,6 +18,7 @@ RFID backpack checker: scans the UHF RFID tags on books/items in your backpack a
 - `reader.py` — J4210u reader interface
 - `checker.py` — compares scanned tags to the expected item list
 - `config.json` — serial port, baud rate, power, scan duration, items
+- `demo/` — builds the browser-only demo into `docs/` (`python demo/build.py`); `docs/` is what GitHub Pages serves
 - `case/` — 3D-printable enclosure (STEP / 3MF files) and the scripts that generate it
 
 ## Setup
